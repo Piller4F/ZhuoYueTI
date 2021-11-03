@@ -149,9 +149,15 @@ void UsartHmiTask(void const * argument)
 {
   /* USER CODE BEGIN UsartHmiTask */
   /* Infinite loop */
+	__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   for(;;)
   {
-    osDelay(1000);
+		if(usarthmi_it.rx_statue == UART_RX_STATE_DEAL)
+		{
+			printf("%s", usarthmi_it.rx_buf);
+			usarthmi_it.clear();
+		}
+    osDelay(1);
   }
   /* USER CODE END UsartHmiTask */
 }

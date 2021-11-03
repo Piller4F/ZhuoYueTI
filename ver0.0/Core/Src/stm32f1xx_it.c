@@ -23,6 +23,8 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usart.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +49,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
+void USART2_HmiHandler(void);
 
 /* USER CODE END PFP */
 
@@ -196,7 +199,7 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-
+	USART2_HmiHandler();
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
@@ -205,6 +208,32 @@ void USART2_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void USART2_HmiHandler(void)
+{
+	if((__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET))
+	{
+		if(usarthmi_it.rx_statue == UART_RX_STATE_READY)
+		{
+			usarthmi_it.rx_statue = UART_RX_STATE_START;
+			__HAL_UART_ENABLE_IT(&huart2,UART_IT_IDLE);
+			usarthmi_it.rx_count = 0;
+			HAL_UART_Receive(&huart2, &usarthmi_it.rx_buf[usarthmi_it.rx_count], 1, 0xFFFF);
+			usarthmi_it.rx_count++;
+		} else if(usarthmi_it.rx_statue == UART_RX_STATE_START)
+		{
+			HAL_UART_Receive(&huart2, &usarthmi_it.rx_buf[usarthmi_it.rx_count], 1, 0xFFFF);
+			usarthmi_it.rx_count++;
+		}
+		__HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_RXNE);
+	}
+	if((__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET))
+	{
+		__HAL_UART_DISABLE_IT(&huart2, UART_IT_IDLE);
+		__HAL_UART_DISABLE_IT(&huart2, UART_IT_RXNE);
+		usarthmi_it.rx_statue = UART_RX_STATE_DEAL;
+		usarthmi_it.rx_buf[usarthmi_it.rx_count] = 0;
+	}
+}
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

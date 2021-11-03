@@ -21,6 +21,18 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+usarthmi_rx_it usarthmi_it = {
+	.huart = &huart1,
+	.rx_count = 0,
+	.rx_statue = UART_RX_STATE_READY,
+	.clear = usarthmi_rx_clear,
+};
+
+void   usarthmi_rx_clear(void)
+{
+	usarthmi_it.rx_statue = UART_RX_STATE_READY;
+	//__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+}
 
 /* USER CODE END 0 */
 
@@ -66,7 +78,7 @@ void MX_USART2_UART_Init(void)
   /* USER CODE END USART2_Init 0 */
 
   /* USER CODE BEGIN USART2_Init 1 */
-
+	huart2.RxState = HAL_UART_STATE_READY;
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 115200;
@@ -123,7 +135,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   else if(uartHandle->Instance==USART2)
   {
   /* USER CODE BEGIN USART2_MspInit 0 */
-
+	
   /* USER CODE END USART2_MspInit 0 */
     /* USART2 clock enable */
     __HAL_RCC_USART2_CLK_ENABLE();
@@ -198,6 +210,12 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+int fputc(int ch, FILE *stream)    //ÖØÐ´fputcº¯Êý
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);   
+    return 1;
+}
+
 
 /* USER CODE END 1 */
 
