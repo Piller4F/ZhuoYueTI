@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "usart.h"
 #include "usarthmi.h"
+#include "motor.h"
 
 /* USER CODE END Includes */
 
@@ -52,6 +53,7 @@
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 osThreadId usartHmiHandle;
+osThreadId motorRunHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -60,6 +62,7 @@ osThreadId usartHmiHandle;
 
 void StartDefaultTask(void const * argument);
 void UsartHmiTask(void const * argument);
+void MotorRun(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -114,6 +117,10 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(usartHmi, UsartHmiTask, osPriorityIdle, 0, 128);
   usartHmiHandle = osThreadCreate(osThread(usartHmi), NULL);
 
+  /* definition and creation of motorRun */
+  osThreadDef(motorRun, MotorRun, osPriorityIdle, 0, 128);
+  motorRunHandle = osThreadCreate(osThread(motorRun), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -152,14 +159,47 @@ void UsartHmiTask(void const * argument)
 	__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   for(;;)
   {
-		if(usarthmi_it.rx_statue == UART_RX_STATE_DEAL)
-		{
-			printf("%s", usarthmi_it.rx_buf);
-			usarthmi_it.clear();
-		}
     osDelay(1);
   }
   /* USER CODE END UsartHmiTask */
+}
+
+/* USER CODE BEGIN Header_MotorRun */
+/**
+* @brief Function implementing the motorRun thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_MotorRun */
+void MotorRun(void const * argument)
+{
+  /* USER CODE BEGIN MotorRun */
+  /* Infinite loop */
+	uint32_t t = 1;
+	HAL_GPIO_WritePin(LeftDir_GPIO_Port, LeftDir_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(RightDIr_GPIO_Port, RightDIr_Pin, GPIO_PIN_SET);
+	for(;;)
+  {
+		if(t)
+		{
+			t = 0;
+			MotorGoStrate(6800);
+			osDelay(100);
+			MotorTurnLeft();
+			osDelay(100);
+			MotorGoStrate(4000);
+			osDelay(100);
+			MotorTurn180();
+			osDelay(100);
+			MotorGoStrate(4000);
+			osDelay(100);
+			MotorTurnRight();
+			osDelay(100);
+			MotorGoStrate(5200);
+		}
+		osDelay(1);
+  }
+  /* USER CODE END MotorRun */
 }
 
 /* Private application code --------------------------------------------------*/
