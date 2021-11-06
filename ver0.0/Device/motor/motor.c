@@ -28,20 +28,20 @@ void MotorGoStrate(uint32_t length)
 
 void MotorTurnLeft(void)
 {
-	uint32_t times = 920;
-	while(times)
+	uint32_t times = 520;
+	while(times--)
 	{
 		HAL_GPIO_WritePin(LeftDir_GPIO_Port, LeftDir_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_TogglePin(RightStp_GPIO_Port, RightStp_Pin);
 		HAL_GPIO_TogglePin(LeftStp_GPIO_Port, LeftStp_Pin);
 		HAL_GPIO_WritePin(LeftDir_GPIO_Port, LeftDir_Pin, GPIO_PIN_SET);
-		times--;
+		//times--;
 		osDelay(1);
 	}
 }	
 
 void MotorTurnRight(void) {
-	uint32_t times = 900;
+	uint32_t times = 510;
 	while(times)
 	{
 		HAL_GPIO_WritePin(RightStp_GPIO_Port, RightDIr_Pin, GPIO_PIN_RESET);
@@ -54,7 +54,7 @@ void MotorTurnRight(void) {
 }
 
 void MotorTurn180(void) {
-	uint32_t times = 1800;
+	uint32_t times = 510 * 2;
 	while(times)
 	{
 		HAL_GPIO_WritePin(LeftDir_GPIO_Port, LeftDir_Pin, GPIO_PIN_RESET);

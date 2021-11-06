@@ -31,6 +31,7 @@ usarthmi_rx_it usarthmi_it = {
 void   usarthmi_rx_clear(void)
 {
 	usarthmi_it.rx_statue = UART_RX_STATE_READY;
+	usarthmi_it.rx_count = 0;
 	//__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
 }
 

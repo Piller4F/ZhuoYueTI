@@ -156,9 +156,13 @@ void UsartHmiTask(void const * argument)
 {
   /* USER CODE BEGIN UsartHmiTask */
   /* Infinite loop */
-	__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+	//__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+	uint8_t buf[4] = {0};
   for(;;)
   {
+		HAL_UART_Receive(&huart2, (uint8_t *)&buf, 2, 0xFFFF);
+		buf[3] = 0;
+		printf("%c%d\r\n",buf[1], buf[0]);
     osDelay(1);
   }
   /* USER CODE END UsartHmiTask */
@@ -178,24 +182,38 @@ void MotorRun(void const * argument)
 	uint32_t t = 1;
 	HAL_GPIO_WritePin(LeftDir_GPIO_Port, LeftDir_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(RightDIr_GPIO_Port, RightDIr_Pin, GPIO_PIN_SET);
+	osDelay(2000);
 	for(;;)
   {
 		if(t)
 		{
 			t = 0;
-			MotorGoStrate(6800);
-			osDelay(100);
+//			MotorGoStrate(3100);
+//			osDelay(200);
+//			MotorTurnRight();
+//			osDelay(200);
+//			MotorGoStrate(2000);
+//			osDelay(200);
+//			MotorTurn180();
+//			osDelay(200);
+//			MotorGoStrate(2000);
+//			osDelay(200);
+//			MotorTurnLeft();
+//			osDelay(200);
+//			MotorGoStrate(2600);
+			//			MotorGoStrate(3100);
+			osDelay(200);
 			MotorTurnLeft();
-			osDelay(100);
-			MotorGoStrate(4000);
-			osDelay(100);
+			osDelay(200);
+			MotorGoStrate(2000);
+			osDelay(200);
 			MotorTurn180();
-			osDelay(100);
-			MotorGoStrate(4000);
-			osDelay(100);
+			osDelay(200);
+			MotorGoStrate(2000);
+			osDelay(200);
 			MotorTurnRight();
-			osDelay(100);
-			MotorGoStrate(5200);
+			osDelay(200);
+			MotorGoStrate(2600);
 		}
 		osDelay(1);
   }
